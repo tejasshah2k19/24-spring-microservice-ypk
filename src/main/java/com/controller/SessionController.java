@@ -1,5 +1,6 @@
 package com.controller;
 
+import java.util.HashMap;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,7 @@ import com.dto.LoginDto;
 import com.dto.ProjectDto;
 import com.entity.UserEntity;
 import com.repository.UserRepository;
+import com.util.JwtHandler;
 
 import reactor.core.publisher.Flux;
 
@@ -24,10 +26,12 @@ public class SessionController {
 
 	@Autowired
 	UserRepository userRepo;
-	
+
+	@Autowired
+	JwtHandler jwt;
+
 	@Value("${google.project.url}")
 	String projectUrl;
-	
 
 	@PostMapping("/login")
 	public ResponseEntity<?> login(@RequestBody LoginDto loginDto) {
@@ -42,12 +46,17 @@ public class SessionController {
 			Flux<ProjectDto> myObjectsFlux = webClient.get().uri("/projects/all").accept(MediaType.APPLICATION_JSON)
 					.retrieve().bodyToFlux(ProjectDto.class);
 
-			
-			
 			// Now you can collect these objects into a list if needed
 			List<ProjectDto> projects = myObjectsFlux.collectList().block();
 
-			return ResponseEntity.ok(projects); // all projects
+			String token  = jwt.generateToken(loginDto.getEmail());
+			
+			HashMap<String, Object> hm = new HashMap<>();
+			
+			hm.put("data", projects);
+			hm.put("token", token); 
+			
+			return ResponseEntity.ok(hm); // all projects
 		}
 	}
 }
