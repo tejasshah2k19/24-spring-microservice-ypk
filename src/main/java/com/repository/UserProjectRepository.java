@@ -10,7 +10,13 @@ import com.entity.UserProjectEntity;
 
 public interface UserProjectRepository extends JpaRepository<UserProjectEntity, Integer> {
 
-	
-	@Query(value = " select p.*,pu.status from projects p,user_project pu where p.project_id = pu.project_id and pu.user_id = :userId",nativeQuery = true)
-	List<Object>  myProjects(Integer userId);
+
+	List<UserProjectEntity> findByProjectId(Integer projectId);
+
+	@Query(value="select count(*) from users",nativeQuery =true)
+	Integer getUserCount();
+
+	@Query(value="select count(*) from users where role = 'Developer' ",nativeQuery =true)
+	Integer getDeveloperCount();
+
 }

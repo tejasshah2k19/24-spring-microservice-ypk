@@ -1,9 +1,12 @@
 package com.controller;
 
+import java.util.HashMap;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,6 +21,7 @@ import com.repository.UserProjectRepository;
 
 @RestController
 @RequestMapping("/projects")
+@CrossOrigin(origins = "*")
 public class ProjectController {
 	@Autowired
 	ProjectRepository projectRepo;
@@ -41,13 +45,8 @@ public class ProjectController {
 		return ResponseEntity.ok(projectRepo.findById(projectId));
 	}
 
-	@PostMapping("/assign/{userId}/{projectId}/{status}")
-	public ResponseEntity<?> assignProjectUserStatus(@PathVariable("userId") Integer userId,
-			@PathVariable("projectId") Integer projectId, @PathVariable("status") String status) {
-		UserProjectEntity up = new UserProjectEntity();
-		up.setProjectId(projectId);
-		up.setUserId(userId);
-		up.setStatus(status);
+	@PostMapping("/assign")
+	public ResponseEntity<?> assignProjectUserStatus(@RequestBody UserProjectEntity up) {
 
 		userProjectRepo.save(up);
 		return ResponseEntity.ok(up);
@@ -56,10 +55,41 @@ public class ProjectController {
 	@GetMapping("/myproject/{userId}")
 	public ResponseEntity<?> myProjects(@PathVariable("userId") Integer userId) {
 
-		List<Object> allProjects = userProjectRepo.myProjects(userId);
+		List<ProjectEntity> allProjects = projectRepo.myProjects(userId);
 
 		return ResponseEntity.ok(allProjects);
-
+	}
+	
+	
+	
+	@DeleteMapping("/{projectId}")
+	public ResponseEntity<?> deleteProject(@PathVariable("projectId") Integer projectId){
+		projectRepo.deleteById(projectId);
+		return ResponseEntity.ok("project removed");
 	}
 
+	@GetMapping("status") //dashboard status 
+	public ResponseEntity<?> getDSStatus()
+	{
+		List<ProjectEntity> inProgress = projectRepo.findByStatus("InProgress");
+		List<ProjectEntity> completed = projectRepo.findByStatus("Completed");
+		List<ProjectEntity> pipeline = projectRepo.findByStatus("Pipeline");
+		List<ProjectEntity> notStarted = projectRepo.findByStatus("NotStarted");
+		Integer count = userProjectRepo.getUserCount();
+		Integer devCount = userProjectRepo.getDeveloperCount();
+		
+		HashMap<String, Integer> hm = new HashMap<>();
+		hm.put("inProgress", inProgress.size());
+		hm.put("completed", completed.size());
+		hm.put("pipeline", pipeline.size());
+		hm.put("notStarted", notStarted.size());
+		hm.put("count", count);
+		hm.put("devCount",devCount);
+		
+		return ResponseEntity.ok(hm);
+		
+	}
+	
+	//user project 
+	
 }
