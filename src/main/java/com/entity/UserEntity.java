@@ -19,6 +19,7 @@ public class UserEntity {
 	String email;
 	String password;
 	String role;
+	String token; 
 
 	public Integer getUserId() {
 		return userId;
@@ -68,4 +69,13 @@ public class UserEntity {
 		this.role = role;
 	}
 
+	public String getToken() {
+		return token;
+	}
+
+	public void setToken(String token) {
+		this.token = token;
+	}
+
+	
 }

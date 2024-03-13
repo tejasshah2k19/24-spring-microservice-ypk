@@ -12,6 +12,12 @@ import org.springframework.web.bind.annotation.RestController;
 import com.entity.UserEntity;
 import com.repository.UserRepository;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+@Tag(name = "Users", description = "User Api")
 @RestController
 @RequestMapping("/users")
 public class UserController {
@@ -25,6 +31,9 @@ public class UserController {
 		return ResponseEntity.ok(user);
 	}
 
+	@Operation(summary = "Fetch all users", description = "fetches all users entities and their data from data source")
+	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "successful operation") })
+
 	@GetMapping("/all")
 	public ResponseEntity<?> getAllUsers() {
 		return ResponseEntity.ok(userRepo.findAll());
@@ -34,4 +43,8 @@ public class UserController {
 	public ResponseEntity<?> getUserById(@PathVariable("userId") Integer userId) {
 		return ResponseEntity.ok(userRepo.findById(userId));
 	}
+	
+	
+
+
 }
